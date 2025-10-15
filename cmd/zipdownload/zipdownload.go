@@ -28,16 +28,19 @@ var proxies = []ProxyConfig{
 // NewCommand 创建 ZIP 下载命令
 func NewCommand() *cobra.Command {
 	var proxyName string
+	var repoName string
 
 	var cmd = &cobra.Command{
 		Use:   "zipdownload",
 		Short: "下载并解压 xcgui 和 example 仓库的源码 ZIP",
-		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP，支持使用代理加速下载。
+		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP, 支持使用代理加速下载, 支持指定 xcgui 或 example 仓库来下载。
 
 示例:
   xc zipdownload                          # 使用直连下载
   xc zipdownload -p llkk             	  # 使用 llkk 代理下载
-  xc zipdownload -p ghfast           	  # 使用 ghfast 代理下载`,
+  xc zipdownload -p ghfast           	  # 使用 ghfast 代理下载
+  xc zipdownload -n xcgui            	  # 下载 xcgui 仓库
+  xc zipdownload -n example          	  # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 验证代理选择
 			var selectedProxy ProxyConfig
@@ -60,22 +63,36 @@ func NewCommand() *cobra.Command {
 				fmt.Printf("代理地址: %s\n", selectedProxy.URL)
 			}
 
-			// 定义要下载的仓库
+			// 定义默认要下载的仓库
 			repos := []struct {
 				url      string
 				filename string
 				finalDir string
 			}{
 				{
-					url:      "https://github.com/twgh/xcgui/archive/refs/heads/main.zip",
-					filename: "xcgui-example.zip",
-					finalDir: "xcgui-example",
-				},
-				{
-					url:      "https://github.com/twgh/xcgui-example/archive/refs/heads/main.zip",
+					url:      getRepoBranchUrl("twgh/xcgui"),
 					filename: "xcgui.zip",
 					finalDir: "xcgui",
 				},
+				{
+					url:      getRepoBranchUrl("twgh/xcgui-example"),
+					filename: "xcgui-example.zip",
+					finalDir: "xcgui-example",
+				},
+			}
+
+			// 如果指定了仓库名称，则只下载指定的仓库
+			if repoName != "" {
+				switch repoName {
+				case "xcgui":
+					repos = repos[:1]
+				case "example":
+					repos = repos[1:2]
+				default:
+					fmt.Printf("错误: 无效的仓库名 '%s'\n", repoName)
+					fmt.Println("可用选项: xcgui, example")
+					os.Exit(1)
+				}
 			}
 
 			// 创建临时目录
@@ -128,8 +145,25 @@ func NewCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&proxyName, "proxy", "p", "direct", "下载代理: direct, ghfast, llkk")
+	cmd.Flags().StringVarP(&repoName, "name", "n", "", "指定要下载的仓库: xcgui, example")
 
 	return cmd
+}
+
+// 获取指定仓库指定分支的源码 ZIP URL.
+//
+// repo: 用户名/仓库名, 如: twgh/xcgui.
+//
+// branch: 分支名, 不填则默认为 main.
+func getRepoBranchUrl(repo string, branch ...string) string {
+	branchName := "main"
+	if len(branch) > 0 {
+		branchName = branch[0]
+		if branchName == "" {
+			branchName = "main"
+		}
+	}
+	return fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.zip", repo, branchName)
 }
 
 // 构建下载URL
@@ -249,7 +283,7 @@ func unzip(src, dest string) (string, error) {
 	return filepath.Join(extractPath, rootDir), nil
 }
 
-// renameDir 重命名目录（移除 -main 后缀）
+// renameDir 重命名目录
 func renameDir(oldPath, newName string) error {
 	// 检查源目录是否存在
 	if _, err := os.Stat(oldPath); os.IsNotExist(err) {

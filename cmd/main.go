@@ -36,10 +36,10 @@ func main() {
 		},
 	}
 
-	// 添加DLL下载命令
+	// 添加 DLL 下载命令
 	rootCmd.AddCommand(dlldownload.NewCommand())
 
-	// 添加ZIP下载命令
+	// 添加 ZIP 下载命令
 	rootCmd.AddCommand(zipdownload.NewCommand())
 
 	// 添加版本命令

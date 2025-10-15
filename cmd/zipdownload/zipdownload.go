@@ -25,20 +25,19 @@ var proxies = []ProxyConfig{
 	{"llkk", "https://gh.llkk.cc/"},
 }
 
-// NewCommand 创建ZIP下载命令
+// NewCommand 创建 ZIP 下载命令
 func NewCommand() *cobra.Command {
 	var proxyName string
 
 	var cmd = &cobra.Command{
 		Use:   "zipdownload",
-		Short: "下载并解压 GitHub 仓库",
-		Long: `从 GitHub 下载指定仓库的 ZIP 包并解压到本地目录。
-支持使用代理加速下载。
+		Short: "下载并解压 xcgui 和 example 仓库的源码 ZIP",
+		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP，支持使用代理加速下载。
 
 示例:
-  xc zipdownload                           # 使用直连下载
-  xc zipdownload -p ghfast                # 使用ghfast代理下载
-  xc zipdownload --proxy llkk             # 使用llkk代理下载`,
+  xc zipdownload                          # 使用直连下载
+  xc zipdownload -p llkk             	  # 使用 llkk 代理下载
+  xc zipdownload -p ghfast           	  # 使用 ghfast 代理下载`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 验证代理选择
 			var selectedProxy ProxyConfig

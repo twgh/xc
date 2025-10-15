@@ -12,16 +12,15 @@ import (
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "xc",
-		Short: "xc 是一个用于下载和管理 xcgui 资源的命令行工具",
-		Long: `xc 是一个功能强大的命令行工具，用于下载和管理 xcgui 相关资源。
-它支持多种命令来满足不同的需求，包括下载 DLL 文件和 ZIP 包等。
+		Short: "xc 是一个 xcgui 助手类型的命令行工具",
+		Long: `xc 是一个 xcgui 助手类型的命令行工具，功能包括下载 xcgui 和 example 仓库的源码 ZIP, 还有下载 xcgui.dll 文件等。
 
 使用方法:
   xc [command]
 
 可用命令:
+  zipdownload   下载并解压 xcgui 和 example 仓库的源码 ZIP
   dlldownload   下载 xcgui.dll 文件
-  zipdownload   下载并解压 GitHub 仓库
   version       显示版本信息
   help          显示命令帮助信息
 

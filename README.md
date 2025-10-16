@@ -23,7 +23,7 @@ go install -ldflags="-s -w" -trimpath github.com/twgh/xc@latest
 ### 查看帮助信息
 
 ```bash
-xc --help
+xc -h
 ```
 
 输出:

@@ -3,13 +3,13 @@
     "FileVersion": {
       "Major": 0,
       "Minor": 0,
-      "Patch": 1,
+      "Patch": 2,
       "Build": 0
     },
     "ProductVersion": {
       "Major": 0,
       "Minor": 0,
-      "Patch": 1,
+      "Patch": 2,
       "Build": 0
     },
     "FileFlagsMask": "3f",
@@ -22,14 +22,14 @@
     "Comments": "xcgui 的命令行工具",
     "CompanyName": "github.com/twgh",
     "FileDescription": "xcgui 的命令行工具",
-    "FileVersion": "v0.0.1.0",
+    "FileVersion": "v0.0.2.0",
     "InternalName": "xc",
     "LegalCopyright": "Copyright (c) 2025 twgh",
     "LegalTrademarks": "",
     "OriginalFilename": "xc",
     "PrivateBuild": "",
     "ProductName": "xc",
-    "ProductVersion": "v0.0.1.0",
+    "ProductVersion": "v0.0.2.0",
     "SpecialBuild": ""
   },
   "VarFileInfo": {

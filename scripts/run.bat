@@ -7,4 +7,4 @@ REM 切换到项目根目录
 cd /d %~dp0..
 
 REM 运行
-go run .\cmd
+go run .

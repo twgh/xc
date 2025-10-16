@@ -11,7 +11,7 @@ set GOOS=windows
 set GOARCH=amd64
 
 REM 编译主程序 (资源文件将被自动包含)
-go build -ldflags="-s -w" -trimpath -o xc.exe .\cmd
+go build -ldflags="-s -w" -trimpath -o xc.exe
 
 if %errorlevel% == 0 (
     echo Build successful! xc.exe has been generated.

@@ -13,7 +13,7 @@ xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 x
 ## 安装
 
 ```
-go install -ldflags="-s -w" -trimpath github.com/twgh/xc/cmd@latest
+go install -ldflags="-s -w" -trimpath github.com/twgh/xc@latest
 ```
 
 成功则 `%GOPATH%\bin` 目录中会出现一个 `xc.exe`

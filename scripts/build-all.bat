@@ -14,7 +14,7 @@ echo Building Windows 64-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=amd64
-go build -ldflags="-s -w" -trimpath -o dist\xc-windows-amd64.exe .\cmd
+go build -ldflags="-s -w" -trimpath -o dist\xc-windows-amd64.exe
 
 if %errorlevel% == 0 (
     echo Windows 64-bit version build successful!
@@ -28,7 +28,7 @@ echo Building Windows 32-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=386
-go build -ldflags="-s -w" -trimpath -o dist\xc-windows-386.exe .\cmd
+go build -ldflags="-s -w" -trimpath -o dist\xc-windows-386.exe
 
 if %errorlevel% == 0 (
     echo Windows 32-bit version build successful!

@@ -17,7 +17,7 @@ echo Building Windows 32-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=386
-go build -ldflags="-s -w" -trimpath -o "%GOPATH%\bin\xc.exe" .\cmd
+go build -ldflags="-s -w" -trimpath -o "%GOPATH%\bin\xc.exe"
 
 if %errorlevel% == 0 (
     echo Windows 32-bit version built successfully!

@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/twgh/xc/cmd/build"
-	"github.com/twgh/xc/cmd/dlldownload"
-	"github.com/twgh/xc/cmd/get"
-	"github.com/twgh/xc/cmd/zipdownload"
+	"github.com/twgh/xc/build"
+	"github.com/twgh/xc/dlldownload"
+	"github.com/twgh/xc/get"
+	"github.com/twgh/xc/zipdownload"
 )
 
 func main() {

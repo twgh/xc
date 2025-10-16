@@ -1,23 +1,23 @@
 @echo off
-REM xc 32位版本安装脚本
+REM xc 32 位版本安装脚本
 
 echo Installing xc 32-bit command line tool to GOPATH...
 
-REM Change to project root directory
+REM 切换到项目根目录
 cd /d %~dp0..
 
-REM Get GOPATH
+REM 获取 GOPATH
 for /f "tokens=*" %%i in ('go env GOPATH') do set GOPATH=%%i
 
-REM Create GOPATH bin directory if it doesn't exist
+REM 如果 %GOPATH%\bin 目录不存在则创建
 if not exist "%GOPATH%\bin" mkdir "%GOPATH%\bin"
 
-REM Build 32-bit version
+REM 编译 32 位版本
 echo Building Windows 32-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=386
-go build -o "%GOPATH%\bin\xc.exe" cmd/main.go
+go build -ldflags="-s -w" -trimpath -o "%GOPATH%\bin\xc.exe" .\cmd
 
 if %errorlevel% == 0 (
     echo Windows 32-bit version built successfully!

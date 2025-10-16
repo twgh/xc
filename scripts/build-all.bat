@@ -1,7 +1,7 @@
 @echo off
 REM xc Windows平台编译脚本
 
-echo 正在编译 xc 命令行工具 (Windows平台)...
+echo Building xc command line tool (Windows platform)...
 
 REM 切换到项目根目录
 cd /d %~dp0..
@@ -10,35 +10,35 @@ REM 创建输出目录
 if not exist "dist" mkdir "dist"
 
 REM Windows 64位
-echo 编译 Windows 64位版本...
+echo Building Windows 64-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=amd64
-go build -o dist/xc-windows-amd64.exe cmd/main.go
+go build -ldflags="-s -w" -trimpath -o dist\xc-windows-amd64.exe .\cmd
 
 if %errorlevel% == 0 (
-    echo Windows 64位版本编译成功!
+    echo Windows 64-bit version build successful!
 ) else (
-    echo Windows 64位版本编译失败!
+    echo Windows 64-bit version build failed!
     exit /b %errorlevel%
 )
 
 REM Windows 32位
-echo 编译 Windows 32位版本...
+echo Building Windows 32-bit version...
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=386
-go build -o dist/xc-windows-386.exe cmd/main.go
+go build -ldflags="-s -w" -trimpath -o dist\xc-windows-386.exe .\cmd
 
 if %errorlevel% == 0 (
-    echo Windows 32位版本编译成功!
+    echo Windows 32-bit version build successful!
 ) else (
-    echo Windows 32位版本编译失败!
+    echo Windows 32-bit version build failed!
     exit /b %errorlevel%
 )
 
 echo.
-echo Windows平台编译完成!
-echo 输出文件位于 dist 目录中:
-echo - xc-windows-amd64.exe (64位)
-echo - xc-windows-386.exe (32位)
+echo Windows platform build completed!
+echo Output files are located in the dist directory:
+echo - xc-windows-amd64.exe (64-bit)
+echo - xc-windows-386.exe (32-bit)

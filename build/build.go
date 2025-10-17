@@ -16,14 +16,20 @@ func NewCommand() *cobra.Command {
 	var verbose bool
 	var work bool
 	var race bool
-	var trimpath bool
+	var noTrimpath bool
 	var buildmode string
 	var tags string
+	var printCommands bool
+	var forceRebuild bool
+	var dryRun bool
+	var parallel int
+	var msan bool
+	var asan bool
 
 	var cmd = &cobra.Command{
 		Use:   "build",
 		Short: `执行 go build -ldflags="-s -w -H windowsgui" -trimpath`,
-		Long: `执行 go build -ldflags="-s -w -H windowsgui" -trimpath 命令来构建项目，支持常用的 go build 参数。
+		Long: `执行 go build -ldflags="-s -w -H windowsgui" -trimpath 命令来构建项目，支持添加常用的 go build 参数。
 
 示例:
   xc build                    # 等于执行 go build -ldflags="-s -w -H windowsgui" -trimpath
@@ -31,6 +37,13 @@ func NewCommand() *cobra.Command {
   xc build -v                 # 打印编译包的名称
   xc build -work              # 打印临时工作目录的名称并不删除它
   xc build -race              # 启用数据竞争检测
+  xc build --no-trimpath      # 不添加 -trimpath 参数
+  xc build -x                 # 打印执行的命令
+  xc build -a                 # 强制重新构建已经是最新的包
+  xc build -n                 # 打印命令但不执行
+  xc build -p 4               # 设置并行执行的程序数量为 4
+  xc build -msan              # 启用与内存清理器的互操作
+  xc build -asan              # 启用与地址清理器的互操作
   xc build -tags "netgo"      # 设置构建标签`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 检查是否安装了 Go
@@ -57,8 +70,8 @@ func NewCommand() *cobra.Command {
 			if race {
 				buildArgs = append(buildArgs, "-race")
 			}
-			// 只有当用户没有明确指定 --no-trimpath 时才添加 -trimpath
-			if trimpath {
+			// 默认添加 -trimpath，除非用户指定了 --no-trimpath
+			if !noTrimpath {
 				buildArgs = append(buildArgs, "-trimpath")
 			}
 			if buildmode != "" {
@@ -66,6 +79,24 @@ func NewCommand() *cobra.Command {
 			}
 			if tags != "" {
 				buildArgs = append(buildArgs, "-tags", tags)
+			}
+			if printCommands {
+				buildArgs = append(buildArgs, "-x")
+			}
+			if forceRebuild {
+				buildArgs = append(buildArgs, "-a")
+			}
+			if dryRun {
+				buildArgs = append(buildArgs, "-n")
+			}
+			if parallel > 0 {
+				buildArgs = append(buildArgs, "-p", fmt.Sprintf("%d", parallel))
+			}
+			if msan {
+				buildArgs = append(buildArgs, "-msan")
+			}
+			if asan {
+				buildArgs = append(buildArgs, "-asan")
 			}
 
 			// 添加用户传递的其他参数
@@ -80,6 +111,9 @@ func NewCommand() *cobra.Command {
 
 			// 执行命令
 			fmt.Printf("执行: go %s\n", strings.Join(buildArgs, " "))
+			if dryRun {
+				fmt.Println("注意: 这是 dry-run 模式，不会实际执行命令")
+			}
 			if err := buildCmd.Run(); err != nil {
 				fmt.Printf("构建失败: %v\n", err)
 				os.Exit(1)
@@ -94,9 +128,15 @@ func NewCommand() *cobra.Command {
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "打印编译包的名称")
 	cmd.Flags().BoolVar(&work, "work", false, "打印临时工作目录的名称并不删除它")
 	cmd.Flags().BoolVar(&race, "race", false, "启用数据竞争检测")
-	cmd.Flags().BoolVar(&trimpath, "trimpath", true, "移除结果可执行文件中的所有文件系统路径")
+	cmd.Flags().BoolVar(&noTrimpath, "no-trimpath", false, "不添加 -trimpath 参数")
 	cmd.Flags().StringVar(&buildmode, "buildmode", "", "构建模式")
 	cmd.Flags().StringVar(&tags, "tags", "", "构建标签列表")
+	cmd.Flags().BoolVarP(&printCommands, "print-commands", "x", false, "打印执行的命令")
+	cmd.Flags().BoolVarP(&forceRebuild, "force-rebuild", "a", false, "强制重新构建已经是最新的包")
+	cmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "打印命令但不执行")
+	cmd.Flags().IntVarP(&parallel, "parallel", "p", 0, "设置并行执行的程序数量")
+	cmd.Flags().BoolVar(&msan, "msan", false, "启用与内存清理器的互操作")
+	cmd.Flags().BoolVar(&asan, "asan", false, "启用与地址清理器的互操作")
 
 	return cmd
 }

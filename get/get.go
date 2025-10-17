@@ -14,16 +14,19 @@ func NewCommand() *cobra.Command {
 	// 定义标志变量
 	var patch bool
 	var tool bool
+	var printCommands bool
 
 	var cmd = &cobra.Command{
 		Use:   "get",
 		Short: "执行 go get -u github.com/twgh/xcgui",
-		Long: `执行 go get -u github.com/twgh/xcgui 命令来获取或更新 xcgui 包，支持常用的 go get 参数。
+		Long: `执行 go get -u github.com/twgh/xcgui 命令来获取或更新 xcgui 包，支持添加常用的 go get 参数。
 
 示例:
   xc get          # 等于执行 go get -u github.com/twgh/xcgui
   xc get -t       # 同时考虑测试依赖
-  xc get --patch  # 使用补丁版本更新`,
+  xc get --patch  # 使用补丁版本更新
+  xc get -tool    # 为每个列出的包添加匹配的工具行到 go.mod
+  xc get -x       # 打印执行的命令`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 检查是否安装了 Go
 			if _, err := exec.LookPath("go"); err != nil {
@@ -42,6 +45,9 @@ func NewCommand() *cobra.Command {
 			// 添加其他标志
 			if tool {
 				getArgs = append(getArgs, "-tool")
+			}
+			if printCommands {
+				getArgs = append(getArgs, "-x")
 			}
 
 			// 添加包名
@@ -71,6 +77,7 @@ func NewCommand() *cobra.Command {
 	// 添加常用的 go get 标志
 	cmd.Flags().BoolVar(&patch, "patch", false, "更新依赖到最新的补丁版本")
 	cmd.Flags().BoolVar(&tool, "tool", false, "为每个列出的包添加匹配的工具行到 go.mod")
+	cmd.Flags().BoolVarP(&printCommands, "print-commands", "x", false, "打印执行的命令")
 
 	return cmd
 }

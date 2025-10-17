@@ -1,9 +1,6 @@
 //go:generate goversioninfo
 package main
 
-// todo: 写一个脚本, 一键改掉所有的版本号
-// todo: 添加代理下载github文件或仓库的功能
-
 import (
 	"fmt"
 	"os"
@@ -40,7 +37,7 @@ func main() {
 		Use:   "version",
 		Short: "显示版本信息",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("xc version 0.0.2")
+			fmt.Println("xc version 0.0.3")
 		},
 	}
 

@@ -1,4 +1,4 @@
-package dlldownload
+package dlldl
 
 import (
 	"fmt"

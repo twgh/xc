@@ -1,4 +1,4 @@
-package zipdownload
+package zipdl
 
 import (
 	"archive/zip"

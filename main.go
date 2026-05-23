@@ -9,9 +9,9 @@ import (
 	"github.com/twgh/xc/build"
 	"github.com/twgh/xc/clone"
 	"github.com/twgh/xc/dl"
-	"github.com/twgh/xc/dlldownload"
+	"github.com/twgh/xc/dlldl"
 	"github.com/twgh/xc/get"
-	"github.com/twgh/xc/zipdownload"
+	"github.com/twgh/xc/zipdl"
 )
 
 func main() {
@@ -46,10 +46,10 @@ func main() {
 	}
 
 	// 添加 DLL 下载命令
-	rootCmd.AddCommand(dlldownload.NewCommand())
+	rootCmd.AddCommand(dlldl.NewCommand())
 
 	// 添加 ZIP 下载命令
-	rootCmd.AddCommand(zipdownload.NewCommand())
+	rootCmd.AddCommand(zipdl.NewCommand())
 
 	// 添加 get 命令
 	rootCmd.AddCommand(get.NewCommand())

@@ -83,7 +83,7 @@ func NewCommand() *cobra.Command {
 				for i, proxy := range utils.Proxies {
 					proxyName := proxy.Name
 					if proxyName == "direct" {
-						proxyName = "github.com (直连)"
+						proxyName = "直连"
 					}
 					fmt.Printf("使用代理: %s\n", proxyName)
 					if proxy.Name != "direct" {

@@ -81,7 +81,7 @@ func SelectAvailableProxy() (ProxyConfig, error) {
 	for _, proxy := range Proxies {
 		proxyName := proxy.Name
 		if proxyName == "direct" {
-			proxyName = "github.com (直连)"
+			proxyName = "直连"
 		}
 
 		fmt.Printf("测试 %s ... ", proxyName)

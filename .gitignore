@@ -19,6 +19,7 @@
 .idea/
 .vscode/
 .qoder/
+.codebuddy/
 
 # Go workspace file
 go.work

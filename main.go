@@ -24,8 +24,8 @@ func main() {
 可用命令:
   get           执行 go get -u github.com/twgh/xcgui
   build         执行 go build -ldflags="-s -w -H windowsgui" -trimpath
-  zipdownload   下载并解压 xcgui 和 example 仓库的源码 ZIP
-  dlldownload   下载 xcgui.dll 文件
+  zipdl         下载并解压 xcgui 和 example 仓库的源码 ZIP
+  dlldl         下载 xcgui.dll 文件
   version       显示版本信息
   help          显示命令帮助信息
 

@@ -31,16 +31,17 @@ func NewCommand() *cobra.Command {
 	var repoName string
 
 	var cmd = &cobra.Command{
-		Use:   "zipdownload",
-		Short: "下载并解压 xcgui 和 example 仓库的源码 ZIP",
+		Use:     "zipdl",
+		Aliases: []string{"zipdownload"},
+		Short:   "下载并解压 xcgui 和 example 仓库的源码 ZIP",
 		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP, 支持使用代理加速下载, 支持指定 xcgui 或 example 仓库来下载。
 
 示例:
-  xc zipdownload                          # 使用直连下载
-  xc zipdownload -p llkk             	  # 使用 llkk 代理下载
-  xc zipdownload -p ghfast           	  # 使用 ghfast 代理下载
-  xc zipdownload -n xcgui            	  # 下载 xcgui 仓库
-  xc zipdownload -n example          	  # 下载 example 仓库`,
+  xc zipdl                                # 使用直连下载
+  xc zipdl -p llkk                        # 使用 llkk 代理下载
+  xc zipdl -p ghfast                      # 使用 ghfast 代理下载
+  xc zipdl -n xcgui                       # 下载 xcgui 仓库
+  xc zipdl -n example                     # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 验证代理选择
 			var selectedProxy ProxyConfig

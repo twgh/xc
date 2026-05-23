@@ -18,7 +18,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "xc",
 		Short: "xc 是一个 xcgui 助手类型的命令行工具",
-		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 example 仓库的源码、下载 xcgui.dll 文件等。
+		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件。
 
 使用方法:
   xc [command]
@@ -41,7 +41,7 @@ func main() {
 		Use:   "version",
 		Short: "显示版本信息",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("xc version 0.0.3")
+			fmt.Println("xc version 0.0.4")
 		},
 	}
 

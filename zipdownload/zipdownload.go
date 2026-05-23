@@ -4,9 +4,11 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/twgh/xc/internal/downloader"
@@ -19,43 +21,58 @@ type ProxyConfig struct {
 	URL  string
 }
 
+// 代理列表（按优先级排序）
 var proxies = []ProxyConfig{
-	{"direct", ""}, // 直接下载
 	{"ghfast", "https://ghfast.top/"},
 	{"llkk", "https://gh.llkk.cc/"},
+	{"direct", ""}, // 直接下载
+}
+
+// 测试网站是否可达
+func isSiteReachable(url string) bool {
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse // 不自动跟随重定向
+		},
+	}
+
+	// 如果是代理网站，测试其首页
+	testURL := url
+	if url == "" {
+		testURL = "https://github.com"
+	}
+
+	resp, err := client.Head(testURL)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	// 200-299 或 300-399 都算可达（重定向也算）
+	return resp.StatusCode >= 200 && resp.StatusCode < 400
 }
 
 // NewCommand 创建 ZIP 下载命令
 func NewCommand() *cobra.Command {
-	var proxyName string
 	var repoName string
 
 	var cmd = &cobra.Command{
 		Use:     "zipdl",
 		Aliases: []string{"zipdownload"},
 		Short:   "下载并解压 xcgui 和 example 仓库的源码 ZIP",
-		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP, 支持使用代理加速下载, 支持指定 xcgui 或 example 仓库来下载。
+		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP, 自动测试并选择可用的代理加速下载。
+测试顺序: ghfast -> llkk -> 直连 github.com, 如果都无法访问则中止下载。
 
 示例:
-  xc zipdl                                # 使用直连下载
-  xc zipdl -p llkk                        # 使用 llkk 代理下载
-  xc zipdl -p ghfast                      # 使用 ghfast 代理下载
+  xc zipdl                                # 自动选择可用代理下载
   xc zipdl -n xcgui                       # 下载 xcgui 仓库
   xc zipdl -n example                     # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// 验证代理选择
-			var selectedProxy ProxyConfig
-			found := false
-			for _, proxy := range proxies {
-				if proxy.Name == proxyName {
-					selectedProxy = proxy
-					found = true
-					break
-				}
-			}
-			if !found {
-				fmt.Printf("错误: 无效的代理选项 '%s'\n", proxyName)
-				fmt.Println("可用选项: direct, ghfast, llkk")
+			// 自动测试并选择可用代理
+			selectedProxy, err := selectAvailableProxy()
+			if err != nil {
+				fmt.Printf("错误: %v\n", err)
 				os.Exit(1)
 			}
 
@@ -145,10 +162,33 @@ func NewCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&proxyName, "proxy", "p", "direct", "下载代理: direct, ghfast, llkk")
 	cmd.Flags().StringVarP(&repoName, "name", "n", "", "指定要下载的仓库: xcgui, example")
 
 	return cmd
+}
+
+// 自动测试并选择可用的代理
+func selectAvailableProxy() (ProxyConfig, error) {
+	fmt.Println("正在测试代理可用性...")
+	fmt.Println("==============================")
+
+	for _, proxy := range proxies {
+		proxyName := proxy.Name
+		if proxyName == "direct" {
+			proxyName = "github.com (直连)"
+		}
+
+		fmt.Printf("测试 %s ... ", proxyName)
+		if isSiteReachable(proxy.URL) {
+			fmt.Println("✓ 可达")
+			fmt.Println("==============================")
+			return proxy, nil
+		}
+		fmt.Println("✗ 不可达")
+	}
+
+	fmt.Println("==============================")
+	return ProxyConfig{}, fmt.Errorf("所有代理都无法访问，请检查网络连接")
 }
 
 // 获取指定仓库指定分支的源码 ZIP URL.

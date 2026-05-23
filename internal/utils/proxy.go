@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -21,6 +22,7 @@ var Proxies = []ProxyConfig{
 }
 
 // IsSiteReachable 测试网站是否可达
+
 func IsSiteReachable(url string) bool {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -30,17 +32,45 @@ func IsSiteReachable(url string) bool {
 	}
 
 	testURL := url
-	if url == "" {
+	if testURL == "" {
 		testURL = "https://github.com"
 	}
 
-	resp, err := client.Head(testURL)
+	// 优先尝试 HEAD
+	req, err := http.NewRequest(http.MethodHead, testURL, nil)
 	if err != nil {
 		return false
 	}
-	defer resp.Body.Close()
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Go-SiteChecker/1.0)")
 
-	return resp.StatusCode >= 200 && resp.StatusCode < 400
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	resp.Body.Close()
+
+	// HEAD 成功则直接返回
+	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+		return true
+	}
+
+	// HEAD 返回 403/405 等，降级为 GET 重试
+	reqGet, err := http.NewRequest(http.MethodGet, testURL, nil)
+	if err != nil {
+		return false
+	}
+	reqGet.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Go-SiteChecker/1.0)")
+
+	respGet, err := client.Do(reqGet)
+	if err != nil {
+		return false
+	}
+	defer respGet.Body.Close()
+
+	// 读取并丢弃 Body，否则底层 TCP 连接不会被复用
+	io.Copy(io.Discard, respGet.Body)
+
+	return respGet.StatusCode >= 200 && respGet.StatusCode < 400
 }
 
 // SelectAvailableProxy 自动测试并选择可用的代理

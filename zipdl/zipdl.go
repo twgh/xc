@@ -28,18 +28,6 @@ func NewCommand() *cobra.Command {
   xc zipdl -n xcgui                       # 下载 xcgui 仓库
   xc zipdl -n example                     # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// 自动测试并选择可用代理
-			selectedProxy, err := utils.SelectAvailableProxy()
-			if err != nil {
-				fmt.Printf("错误: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Printf("使用代理: %s\n", selectedProxy.Name)
-			if selectedProxy.Name != "direct" {
-				fmt.Printf("代理地址: %s\n", selectedProxy.URL)
-			}
-
 			// 定义默认要下载的仓库
 			repos := []struct {
 				url      string
@@ -87,14 +75,39 @@ func NewCommand() *cobra.Command {
 				fmt.Printf("\n处理仓库: %s\n", repo.finalDir)
 				fmt.Println("==============================")
 
-				// 构建下载URL
-				downloadURL := utils.BuildFileDownloadURL(repo.url, selectedProxy)
-				fmt.Printf("下载地址: %s\n", downloadURL)
-
-				// 下载文件
+				// 准备 zipPath（用于后续解压）
 				zipPath := filepath.Join(tempDir, repo.filename)
-				if err := utils.DownloadFile(downloadURL, zipPath); err != nil {
-					fmt.Printf("下载失败: %v\n", err)
+
+				// 遍历所有代理尝试下载，直到成功
+				success := false
+				for i, proxy := range utils.Proxies {
+					proxyName := proxy.Name
+					if proxyName == "direct" {
+						proxyName = "github.com (直连)"
+					}
+					fmt.Printf("使用代理: %s\n", proxyName)
+					if proxy.Name != "direct" {
+						fmt.Printf("代理地址: %s\n", proxy.URL)
+					}
+
+					// 构建下载URL
+					downloadURL := utils.BuildFileDownloadURL(repo.url, proxy)
+					fmt.Printf("下载地址: %s\n", downloadURL)
+
+					// 下载文件
+					if err := utils.DownloadFile(downloadURL, zipPath); err != nil {
+						fmt.Printf("下载失败: %v\n", err)
+						if i < len(utils.Proxies)-1 {
+							fmt.Println("尝试下一个代理...")
+						}
+						continue
+					}
+					success = true
+					break
+				}
+
+				if !success {
+					fmt.Printf("仓库 %s 所有下载方式均失败，跳过\n", repo.finalDir)
 					continue
 				}
 

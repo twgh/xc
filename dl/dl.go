@@ -51,22 +51,6 @@ func NewCommand() *cobra.Command {
 
 			url := args[0]
 
-			// 自动测试并选择可用代理
-			selectedProxy, err := utils.SelectAvailableProxy()
-			if err != nil {
-				fmt.Printf("错误: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Printf("使用代理: %s\n", selectedProxy.Name)
-			if selectedProxy.Name != "direct" {
-				fmt.Printf("代理地址: %s\n", selectedProxy.URL)
-			}
-
-			// 构建最终的下载 URL（用户输入的是原始 URL，自动拼接代理前缀）
-			finalURL := utils.BuildFileDownloadURL(url, selectedProxy)
-			fmt.Printf("下载地址: %s\n", finalURL)
-
 			// 确定输出文件名
 			filename := outputName
 			if filename == "" {
@@ -84,9 +68,36 @@ func NewCommand() *cobra.Command {
 			fmt.Printf("保存路径: %s\n", filepath)
 			fmt.Println("==============================")
 
-			// 下载文件
-			if err := utils.DownloadFile(finalURL, filepath); err != nil {
-				fmt.Printf("下载失败: %v\n", err)
+			// 遍历所有代理尝试下载，直到成功
+			success := false
+			for i, proxy := range utils.Proxies {
+				proxyName := proxy.Name
+				if proxyName == "direct" {
+					proxyName = "github.com (直连)"
+				}
+				fmt.Printf("使用代理: %s\n", proxyName)
+				if proxy.Name != "direct" {
+					fmt.Printf("代理地址: %s\n", proxy.URL)
+				}
+
+				// 构建最终的下载 URL（用户输入的是原始 URL，自动拼接代理前缀）
+				finalURL := utils.BuildFileDownloadURL(url, proxy)
+				fmt.Printf("下载地址: %s\n", finalURL)
+
+				// 下载文件
+				if err := utils.DownloadFile(finalURL, filepath); err != nil {
+					fmt.Printf("下载失败: %v\n", err)
+					if i < len(utils.Proxies)-1 {
+						fmt.Println("尝试下一个代理...")
+					}
+					continue
+				}
+				success = true
+				break
+			}
+
+			if !success {
+				fmt.Println("所有下载方式均失败")
 				os.Exit(1)
 			}
 

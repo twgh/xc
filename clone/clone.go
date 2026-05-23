@@ -26,7 +26,7 @@ func NewCommand() *cobra.Command {
 
 示例:
   xc clone https://github.com/twgh/xcgui          # 克隆 xcgui 仓库
-  xc clone https://github.com/xxx/xxxx             # 克隆任意仓库`,
+  xc clone https://github.com/xxx/xxxx            # 克隆任意仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 检查是否提供了仓库 URL
 			if len(args) == 0 {

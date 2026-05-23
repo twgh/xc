@@ -39,11 +39,10 @@ func NewCommand() *cobra.Command {
 		Long: `下载文件，自动测试并选择可用的代理加速下载，如果都无法访问则中止下载。
 
 示例:
-  xc dl https://github.com/twgh/xcgui/archive/main.zip    # 下载分支源码
-  xc dl https://github.com/twgh/xcgui/archive/refs/tags/v1.4.0.zip    # 下载 Release 源码
-  xc dl https://github.com/twgh/xcgui/releases/download/v1.3.393/xcgui.dll    # 下载 Release 附件
-  xc dl https://gist.github.com/oopsunix/2dbf20f64984773da6740d1d1cf7c2d4    # 下载 Gist
-  xc dl https://raw.githubusercontent.com/twgh/xc/main/README.md -o readme.md    # 下载 Raw 文件并指定输出文件名`,
+  xc dl https://github.com/twgh/xcgui/archive/main.zip               		# 下载分支源码
+  xc dl https://github.com/twgh/xcgui/archive/refs/tags/v1.4.0.zip    		# 下载 Release 源码
+  xc dl https://github.com/twgh/xcgui/releases/download/v1.3.393/xcgui.dll   	# 下载 Release 附件
+  xc dl https://raw.githubusercontent.com/twgh/xc/main/README.md -o readme.md   # 下载 Raw 文件并指定输出文件名`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 检查是否提供了 URL
 			if len(args) == 0 {

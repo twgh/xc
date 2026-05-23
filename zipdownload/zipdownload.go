@@ -4,54 +4,14 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/twgh/xc/internal/downloader"
 	"github.com/twgh/xc/internal/utils"
 )
-
-// 代理配置
-type ProxyConfig struct {
-	Name string
-	URL  string
-}
-
-// 代理列表（按优先级排序）
-var proxies = []ProxyConfig{
-	{"ghfast", "https://ghfast.top/"},
-	{"llkk", "https://gh.llkk.cc/"},
-	{"direct", ""}, // 直接下载
-}
-
-// 测试网站是否可达
-func isSiteReachable(url string) bool {
-	client := &http.Client{
-		Timeout: 5 * time.Second,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse // 不自动跟随重定向
-		},
-	}
-
-	// 如果是代理网站，测试其首页
-	testURL := url
-	if url == "" {
-		testURL = "https://github.com"
-	}
-
-	resp, err := client.Head(testURL)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-
-	// 200-299 或 300-399 都算可达（重定向也算）
-	return resp.StatusCode >= 200 && resp.StatusCode < 400
-}
 
 // NewCommand 创建 ZIP 下载命令
 func NewCommand() *cobra.Command {
@@ -70,7 +30,7 @@ func NewCommand() *cobra.Command {
   xc zipdl -n example                     # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 自动测试并选择可用代理
-			selectedProxy, err := selectAvailableProxy()
+			selectedProxy, err := utils.SelectAvailableProxy()
 			if err != nil {
 				fmt.Printf("错误: %v\n", err)
 				os.Exit(1)
@@ -132,7 +92,7 @@ func NewCommand() *cobra.Command {
 				fmt.Println("==============================")
 
 				// 构建下载URL
-				downloadURL := buildDownloadURL(repo.url, selectedProxy)
+				downloadURL := utils.BuildFileDownloadURL(repo.url, selectedProxy)
 				fmt.Printf("下载地址: %s\n", downloadURL)
 
 				// 下载文件
@@ -167,30 +127,6 @@ func NewCommand() *cobra.Command {
 	return cmd
 }
 
-// 自动测试并选择可用的代理
-func selectAvailableProxy() (ProxyConfig, error) {
-	fmt.Println("正在测试代理可用性...")
-	fmt.Println("==============================")
-
-	for _, proxy := range proxies {
-		proxyName := proxy.Name
-		if proxyName == "direct" {
-			proxyName = "github.com (直连)"
-		}
-
-		fmt.Printf("测试 %s ... ", proxyName)
-		if isSiteReachable(proxy.URL) {
-			fmt.Println("✓ 可达")
-			fmt.Println("==============================")
-			return proxy, nil
-		}
-		fmt.Println("✗ 不可达")
-	}
-
-	fmt.Println("==============================")
-	return ProxyConfig{}, fmt.Errorf("所有代理都无法访问，请检查网络连接")
-}
-
 // 获取指定仓库指定分支的源码 ZIP URL.
 //
 // repo: 用户名/仓库名, 如: twgh/xcgui.
@@ -205,14 +141,6 @@ func getRepoBranchUrl(repo string, branch ...string) string {
 		}
 	}
 	return fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.zip", repo, branchName)
-}
-
-// 构建下载URL
-func buildDownloadURL(originalURL string, proxy ProxyConfig) string {
-	if proxy.Name == "direct" {
-		return originalURL
-	}
-	return proxy.URL + originalURL
 }
 
 // downloadFile 下载文件

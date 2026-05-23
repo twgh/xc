@@ -2,13 +2,11 @@ package dl
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/twgh/xc/internal/downloader"
 	"github.com/twgh/xc/internal/utils"
 )
 
@@ -86,9 +84,8 @@ func NewCommand() *cobra.Command {
 			fmt.Printf("保存路径: %s\n", filepath)
 			fmt.Println("==============================")
 
-			// 创建下载器并下载文件
-			dl := downloader.NewHTTPDownloader()
-			if err := downloadFile(dl, finalURL, filepath); err != nil {
+			// 下载文件
+			if err := utils.DownloadFile(finalURL, filepath); err != nil {
 				fmt.Printf("下载失败: %v\n", err)
 				os.Exit(1)
 			}
@@ -102,41 +99,3 @@ func NewCommand() *cobra.Command {
 	return cmd
 }
 
-// downloadFile 下载文件
-func downloadFile(dl downloader.Downloader, url, filepath string) error {
-	fmt.Println("正在下载...")
-
-	// 创建文件
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// 下载数据
-	body, err := dl.Download(url)
-	if err != nil {
-		return err
-	}
-	defer body.Close()
-
-	// 获取内容长度
-	if seeker, ok := body.(interface {
-		Seek(int64, int) (int64, error)
-	}); ok {
-		size, _ := seeker.Seek(0, 2)
-		seeker.Seek(0, 0)
-		if size > 0 {
-			fmt.Printf("文件大小: %.2f MB\n", float64(size)/1024/1024)
-		}
-	}
-
-	// 复制内容到文件
-	_, err = io.Copy(out, body)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("文件已保存: %s\n", filepath)
-	return nil
-}

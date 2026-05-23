@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/twgh/xc/internal/downloader"
 	"github.com/twgh/xc/internal/utils"
 )
 
@@ -83,9 +82,6 @@ func NewCommand() *cobra.Command {
 
 			fmt.Println("临时目录:", tempDir)
 
-			// 创建下载器
-			dl := downloader.NewHTTPDownloader()
-
 			// 处理每个仓库
 			for _, repo := range repos {
 				fmt.Printf("\n处理仓库: %s\n", repo.finalDir)
@@ -97,7 +93,7 @@ func NewCommand() *cobra.Command {
 
 				// 下载文件
 				zipPath := filepath.Join(tempDir, repo.filename)
-				if err := downloadFile(dl, downloadURL, zipPath); err != nil {
+				if err := utils.DownloadFile(downloadURL, zipPath); err != nil {
 					fmt.Printf("下载失败: %v\n", err)
 					continue
 				}
@@ -141,45 +137,6 @@ func getRepoBranchUrl(repo string, branch ...string) string {
 		}
 	}
 	return fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.zip", repo, branchName)
-}
-
-// downloadFile 下载文件
-func downloadFile(dl downloader.Downloader, url, filepath string) error {
-	fmt.Printf("下载中...\n")
-
-	// 创建文件
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// 下载数据
-	body, err := dl.Download(url)
-	if err != nil {
-		return err
-	}
-	defer body.Close()
-
-	// 获取内容长度
-	if seeker, ok := body.(interface {
-		Seek(int64, int) (int64, error)
-	}); ok {
-		size, _ := seeker.Seek(0, 2) // 移到末尾
-		seeker.Seek(0, 0)            // 移到开头
-		if size > 0 {
-			fmt.Printf("文件大小: %.2f MB\n", float64(size)/1024/1024)
-		}
-	}
-
-	// 复制内容到文件
-	_, err = io.Copy(out, body)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("下载完成: %s\n", filepath)
-	return nil
 }
 
 // unzip 解压文件

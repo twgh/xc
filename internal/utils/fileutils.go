@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/twgh/xc/internal/downloader"
 )
 
 // EnsureDirExists 确保目录存在，如果不存在则创建
@@ -119,4 +121,46 @@ func copyFile(src, dst string) error {
 // GetWorkingDir 获取当前工作目录
 func GetWorkingDir() (string, error) {
 	return os.Getwd()
+}
+
+// DownloadFile 下载文件
+func DownloadFile(url, filepath string) error {
+	fmt.Println("正在下载...")
+
+	// 创建下载器
+	dl := downloader.NewHTTPDownloader()
+
+	// 创建文件
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// 下载数据
+	body, err := dl.Download(url)
+	if err != nil {
+		return err
+	}
+	defer body.Close()
+
+	// 获取内容长度
+	if seeker, ok := body.(interface {
+		Seek(int64, int) (int64, error)
+	}); ok {
+		size, _ := seeker.Seek(0, 2)
+		seeker.Seek(0, 0)
+		if size > 0 {
+			fmt.Printf("文件大小: %.2f MB\n", float64(size)/1024/1024)
+		}
+	}
+
+	// 复制内容到文件
+	_, err = io.Copy(out, body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("文件已保存: %s\n", filepath)
+	return nil
 }

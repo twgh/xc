@@ -68,12 +68,24 @@ func NewCommand() *cobra.Command {
 			fmt.Printf("保存路径: %s\n", filepath)
 			fmt.Println("==============================")
 
+			// 如果 URL 中不包含 github，则直接使用直连下载
+			if !strings.Contains(url, "github") {
+				fmt.Println("使用代理: 直连")
+				fmt.Printf("下载地址: %s\n", url)
+				if err := utils.DownloadFile(url, filepath); err != nil {
+					fmt.Printf("下载失败: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Println("\n下载完成!")
+				return
+			}
+
 			// 遍历所有代理尝试下载，直到成功
 			success := false
 			for i, proxy := range utils.Proxies {
 				proxyName := proxy.Name
 				if proxyName == "direct" {
-					proxyName = "github.com (直连)"
+					proxyName = "直连"
 				}
 				fmt.Printf("使用代理: %s\n", proxyName)
 				if proxy.Name != "direct" {
@@ -109,4 +121,3 @@ func NewCommand() *cobra.Command {
 
 	return cmd
 }
-

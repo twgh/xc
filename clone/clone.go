@@ -22,8 +22,7 @@ func NewCommand() *cobra.Command {
 	var cloneCmd = &cobra.Command{
 		Use:   "clone",
 		Short: "克隆 GitHub 仓库",
-		Long: `克隆 GitHub 仓库，自动测试并选择可用的代理加速下载。
-测试顺序: ghfast -> llkk -> 直连 github.com，如果都无法访问则中止克隆。
+		Long: `克隆 GitHub 仓库，自动测试并选择可用的代理加速下载，如果都无法访问则中止克隆。
 
 示例:
   xc clone https://github.com/twgh/xcgui          # 克隆 xcgui 仓库

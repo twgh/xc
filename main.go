@@ -7,6 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/twgh/xc/build"
+	"github.com/twgh/xc/clone"
+	"github.com/twgh/xc/dl"
 	"github.com/twgh/xc/dlldownload"
 	"github.com/twgh/xc/get"
 	"github.com/twgh/xc/zipdownload"
@@ -24,7 +26,9 @@ func main() {
 可用命令:
   get           执行 go get -u github.com/twgh/xcgui
   build         执行 go build -ldflags="-s -w -H windowsgui" -trimpath
-  zipdl         下载并解压 xcgui 和 example 仓库的源码 ZIP
+  zipdl         下载并解压 xcgui 和 example 仓库的源码 ZIP，自动选择可用代理
+  clone         克隆 GitHub 仓库，自动选择可用代理
+  dl            下载文件，自动选择可用代理
   dlldl         下载 xcgui.dll 文件
   version       显示版本信息
   help          显示命令帮助信息
@@ -52,6 +56,12 @@ func main() {
 
 	// 添加 build 命令
 	rootCmd.AddCommand(build.NewCommand())
+
+	// 添加 clone 命令
+	rootCmd.AddCommand(clone.NewCommand())
+
+	// 添加 dl 命令
+	rootCmd.AddCommand(dl.NewCommand())
 
 	// 添加版本命令
 	rootCmd.AddCommand(versionCmd)

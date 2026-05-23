@@ -23,15 +23,16 @@ func NewCommand() *cobra.Command {
 	)
 
 	var cmd = &cobra.Command{
-		Use:   "dlldownload",
-		Short: "下载 xcgui.dll 文件",
+		Use:     "dlldl",
+		Aliases: []string{"dlldownload"},
+		Short:   "下载 xcgui.dll 文件",
 		Long: `下载 xcgui.dll 文件，默认会下载最新版本的 64 位 DLL 文件。可指定版本号、位数、输出文件名及位置。
 
 示例:
-  xc dlldownload                          # 下载最新版本的 64 位 DLL
-  xc dlldownload -v 3.3.5.0               # 下载指定版本的 DLL
-  xc dlldownload -b 32 -o my.dll          # 下载 32 位 DLL 并保存为 my.dll
-  xc dlldownload -v 3.3.5.0 -b 32 -o test.dll  # 下载指定版本的 32 位 DLL 并保存为 test.dll`,
+  xc dlldl                                # 下载最新版本的 64 位 DLL
+  xc dlldl -v 3.3.5.0                     # 下载指定版本的 DLL
+  xc dlldl -b 32 -o my.dll                # 下载 32 位 DLL 并保存为 my.dll
+  xc dlldl -v 3.3.5.0 -b 32 -o test.dll   # 下载指定版本的 32 位 DLL 并保存为 test.dll`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 获取最新版本号
 			version = strings.TrimSpace(version)

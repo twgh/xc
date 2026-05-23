@@ -70,7 +70,6 @@ func NewCommand() *cobra.Command {
 
 			// 如果 URL 中不包含 github，则直接使用直连下载
 			if !strings.Contains(url, "github") {
-				fmt.Println("使用代理: 直连")
 				fmt.Printf("下载地址: %s\n", url)
 				if err := utils.DownloadFile(url, filepath); err != nil {
 					fmt.Printf("下载失败: %v\n", err)

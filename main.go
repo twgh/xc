@@ -18,7 +18,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "xc",
 		Short: "xc 是一个 xcgui 助手类型的命令行工具",
-		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件。
+		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 xcgui-example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件。
 
 使用方法:
   xc [command]
@@ -26,7 +26,7 @@ func main() {
 可用命令:
   get           执行 go get -u github.com/twgh/xcgui
   build         执行 go build -ldflags="-s -w -H windowsgui" -trimpath
-  zipdl         下载并解压 xcgui 和 example 仓库的源码 ZIP，自动选择可用代理
+  zipdl         下载并解压 xcgui 和 xcgui-example 仓库的源码 ZIP，自动选择可用代理
   clone         克隆 GitHub 仓库，自动选择可用代理
   dl            下载文件，自动选择可用代理
   dlldl         下载 xcgui.dll 文件

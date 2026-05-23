@@ -19,9 +19,8 @@ func NewCommand() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     "zipdl",
 		Aliases: []string{"zipdownload"},
-		Short:   "下载并解压 xcgui 和 example 仓库的源码 ZIP",
-		Long: `下载并解压 xcgui 和 example 仓库的源码 ZIP, 自动测试并选择可用的代理加速下载。
-测试顺序: ghfast -> llkk -> 直连 github.com, 如果都无法访问则中止下载。
+		Short:   "下载并解压 xcgui 和 xcgui-example 仓库的源码 ZIP",
+		Long: `下载并解压 xcgui 和 xcgui-example 仓库的源码 ZIP, 自动测试并选择可用的代理加速下载, 如果都无法访问则中止下载。
 
 示例:
   xc zipdl                                # 自动选择可用代理下载

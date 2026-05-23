@@ -22,7 +22,7 @@ func NewCommand() *cobra.Command {
 	var cloneCmd = &cobra.Command{
 		Use:   "clone",
 		Short: "克隆 GitHub 仓库",
-		Long: `克隆 GitHub 仓库，自动测试并选择可用的代理加速下载，如果都无法访问则中止克隆。
+		Long: `克隆 GitHub 仓库，自动使用代理加速下载，如果都无法访问则中止克隆。
 
 示例:
   xc clone https://github.com/twgh/xcgui          # 克隆 xcgui 仓库
@@ -44,22 +44,6 @@ func NewCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// 自动测试并选择可用代理
-			selectedProxy, err := utils.SelectAvailableProxy()
-			if err != nil {
-				fmt.Printf("错误: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Printf("使用代理: %s\n", selectedProxy.Name)
-			if selectedProxy.Name != "direct" {
-				fmt.Printf("代理地址: %s\n", selectedProxy.URL)
-			}
-
-			// 构建最终的 clone URL
-			finalURL := utils.BuildDownloadURL(repoURL, selectedProxy)
-			fmt.Printf("克隆地址: %s\n", finalURL)
-
 			// 获取仓库名称作为目标目录
 			repoName := filepath.Base(repoURL)
 			repoName = strings.TrimSuffix(repoName, ".git")
@@ -67,14 +51,41 @@ func NewCommand() *cobra.Command {
 			fmt.Printf("目标目录: %s\n", repoName)
 			fmt.Println("==============================")
 
-			// 执行 git clone
-			fmt.Println("正在执行 git clone...")
-			gitCmd := exec.Command("git", "clone", finalURL, repoName)
-			gitCmd.Stdout = os.Stdout
-			gitCmd.Stderr = os.Stderr
+			// 遍历所有代理尝试 clone，直到成功
+			success := false
+			for i, proxy := range utils.Proxies {
+				proxyName := proxy.Name
+				if proxyName == "direct" {
+					proxyName = "直连"
+				}
+				fmt.Printf("使用代理: %s\n", proxyName)
+				if proxy.Name != "direct" {
+					fmt.Printf("代理地址: %s\n", proxy.URL)
+				}
 
-			if err := gitCmd.Run(); err != nil {
-				fmt.Printf("克隆失败: %v\n", err)
+				// 构建最终的 clone URL
+				finalURL := utils.BuildDownloadURL(repoURL, proxy)
+				fmt.Printf("克隆地址: %s\n", finalURL)
+
+				// 执行 git clone
+				fmt.Println("正在执行 git clone...")
+				gitCmd := exec.Command("git", "clone", finalURL, repoName)
+				gitCmd.Stdout = os.Stdout
+				gitCmd.Stderr = os.Stderr
+
+				if err := gitCmd.Run(); err != nil {
+					fmt.Printf("克隆失败: %v\n", err)
+					if i < len(utils.Proxies)-1 {
+						fmt.Println("尝试下一个代理...")
+					}
+					continue
+				}
+				success = true
+				break
+			}
+
+			if !success {
+				fmt.Println("所有克隆方式均失败")
 				os.Exit(1)
 			}
 

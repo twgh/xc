@@ -2,8 +2,10 @@ package zipdl
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,6 +29,16 @@ func NewCommand() *cobra.Command {
   xc zipdl -n xcgui                       # 下载 xcgui 仓库
   xc zipdl -n example                     # 下载 example 仓库`,
 		Run: func(cmd *cobra.Command, args []string) {
+			// 获取 xcgui 最新 release 版本号，失败则使用 main 分支
+			xcguiVersion, err := getLatestXcguiVersion()
+			xcguiUrl := getRepoBranchUrl("twgh/xcgui")
+			if err == nil {
+				fmt.Printf("获取到 xcgui 最新版本号: %s\n", xcguiVersion)
+				xcguiUrl = fmt.Sprintf("https://github.com/twgh/xcgui/archive/refs/tags/v%s.zip", xcguiVersion)
+			} else {
+				fmt.Printf("获取 xcgui 最新版本号失败，使用 main 分支: %v\n", err)
+			}
+
 			// 定义默认要下载的仓库
 			repos := []struct {
 				url      string
@@ -34,7 +46,7 @@ func NewCommand() *cobra.Command {
 				finalDir string
 			}{
 				{
-					url:      getRepoBranchUrl("twgh/xcgui"),
+					url:      xcguiUrl,
 					filename: "xcgui.zip",
 					finalDir: "xcgui",
 				},
@@ -133,6 +145,26 @@ func NewCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&repoName, "name", "n", "", "指定要下载的仓库: xcgui, example")
 
 	return cmd
+}
+
+// getLatestXcguiVersion 获取 xcgui 仓库的最新 release 版本号
+func getLatestXcguiVersion() (string, error) {
+	res, err := http.Get("https://cnb.cool/twgh521/xcguidll/-/git/raw/main/xcgui-latest.txt?download=true")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	version := strings.TrimSpace(string(body))
+	if version == "" {
+		return "", errors.New("failed to get the latest version number")
+	}
+	return version, nil
 }
 
 // 获取指定仓库指定分支的源码 ZIP URL.

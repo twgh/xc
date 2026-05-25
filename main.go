@@ -41,7 +41,7 @@ func main() {
 		Use:   "version",
 		Short: "显示版本信息",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("xc version 0.0.4")
+			fmt.Println("xc version 0.0.5")
 		},
 	}
 

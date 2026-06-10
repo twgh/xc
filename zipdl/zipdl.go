@@ -1,7 +1,6 @@
 package zipdl
 
 import (
-	"archive/zip"
 	"errors"
 	"fmt"
 	"io"
@@ -123,14 +122,14 @@ func NewCommand() *cobra.Command {
 				}
 
 				// 解压文件
-				extractedDir, err := unzip(zipPath, tempDir)
+				extractedDir, err := utils.Unzip(zipPath, tempDir)
 				if err != nil {
 					fmt.Printf("解压失败: %v\n", err)
 					continue
 				}
 
 				// 重命名文件夹（移除 -main 后缀）
-				if err := renameDir(extractedDir, repo.finalDir); err != nil {
+				if err := utils.RenameDir(extractedDir, repo.finalDir); err != nil {
 					fmt.Printf("重命名失败: %v\n", err)
 					continue
 				}
@@ -181,104 +180,4 @@ func getRepoBranchUrl(repo string, branch ...string) string {
 		}
 	}
 	return fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.zip", repo, branchName)
-}
-
-// unzip 解压文件
-func unzip(src, dest string) (string, error) {
-	fmt.Printf("解压中: %s\n", src)
-
-	r, err := zip.OpenReader(src)
-	if err != nil {
-		return "", err
-	}
-	defer r.Close()
-
-	// 获取根目录名
-	var rootDir string
-	if len(r.File) > 0 {
-		parts := strings.Split(r.File[0].Name, "/")
-		if len(parts) > 0 {
-			rootDir = parts[0]
-		}
-	}
-
-	// 创建解压目录
-	extractPath := filepath.Join(dest, "extracted")
-	if err := utils.EnsureDirExists(extractPath); err != nil {
-		return "", err
-	}
-
-	// 解压所有文件
-	for _, f := range r.File {
-		// 处理文件名
-		fpath := filepath.Join(extractPath, f.Name)
-
-		// 创建目录
-		if f.FileInfo().IsDir() {
-			utils.EnsureDirExists(fpath)
-			continue
-		}
-
-		// 创建文件目录
-		if err := utils.EnsureDirExists(filepath.Dir(fpath)); err != nil {
-			return "", err
-		}
-
-		// 创建目标文件
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return "", err
-		}
-
-		// 打开源文件
-		rc, err := f.Open()
-		if err != nil {
-			outFile.Close()
-			return "", err
-		}
-
-		// 复制内容
-		_, err = io.Copy(outFile, rc)
-
-		// 关闭文件
-		outFile.Close()
-		rc.Close()
-
-		if err != nil {
-			return "", err
-		}
-	}
-
-	fmt.Printf("解压完成: %s\n", extractPath)
-	return filepath.Join(extractPath, rootDir), nil
-}
-
-// renameDir 重命名目录
-func renameDir(oldPath, newName string) error {
-	// 检查源目录是否存在
-	if _, err := os.Stat(oldPath); os.IsNotExist(err) {
-		return fmt.Errorf("源目录不存在: %s", oldPath)
-	}
-
-	// 获取新路径
-	newPath := filepath.Join(filepath.Dir(oldPath), newName)
-
-	// 重命名目录
-	fmt.Printf("重命名: %s -> %s\n", filepath.Base(oldPath), newName)
-	if err := os.Rename(oldPath, newPath); err != nil {
-		// 如果重命名失败，可能是跨磁盘，使用MoveDir工具函数
-		fmt.Printf("直接重命名失败，尝试跨磁盘移动: %v\n", err)
-	}
-
-	// 移动目录到当前工作目录
-	currentDir, err := utils.GetWorkingDir()
-	if err != nil {
-		return fmt.Errorf("获取当前目录失败: %v", err)
-	}
-
-	finalPath := filepath.Join(currentDir, newName)
-	fmt.Printf("移动目录到: %s\n", finalPath)
-
-	// 使用工具函数移动目录（支持跨磁盘）
-	return utils.MoveDir(newPath, finalPath)
 }

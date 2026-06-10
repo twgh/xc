@@ -11,6 +11,7 @@ import (
 	"github.com/twgh/xc/dl"
 	"github.com/twgh/xc/dlldl"
 	"github.com/twgh/xc/get"
+	"github.com/twgh/xc/getskill"
 	"github.com/twgh/xc/zipdl"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "xc",
 		Short: "xc 是一个 xcgui 助手类型的命令行工具",
-		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 xcgui-example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件。
+		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 xcgui-example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件, 下载 go-xcgui-dev 技能。
 
 使用方法:
   xc [command]
@@ -30,6 +31,7 @@ func main() {
   clone         克隆 GitHub 仓库，自动选择可用代理
   dl            下载文件，自动选择可用代理
   dlldl         下载 xcgui.dll 文件
+  getskill      下载 go-xcgui-dev 技能
   version       显示版本信息
   help          显示命令帮助信息
 
@@ -62,6 +64,9 @@ func main() {
 
 	// 添加 dl 命令
 	rootCmd.AddCommand(dl.NewCommand())
+
+	// 添加 getskill 命令
+	rootCmd.AddCommand(getskill.NewCommand())
 
 	// 添加版本命令
 	rootCmd.AddCommand(versionCmd)

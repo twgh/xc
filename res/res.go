@@ -44,8 +44,8 @@ func ensureWinresExe() (string, error) {
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "res",
-		Short: "执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息）",
-		Long: `执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息）, 相当于在命令行中直接调用 go-winres。
+		Short: "执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息 / 程序清单）",
+		Long: `执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息 / 程序清单）, 相当于在命令行中直接调用 go-winres。
 
 go-winres 常用子命令:
   init     在当前目录创建初始的 ./winres/winres.json

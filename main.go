@@ -11,6 +11,7 @@ import (
 	"github.com/twgh/xc/dlldl"
 	"github.com/twgh/xc/get"
 	"github.com/twgh/xc/getskill"
+	"github.com/twgh/xc/res"
 	"github.com/twgh/xc/zipdl"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "xc",
 		Short: "xc 是一个 xcgui 助手类型的命令行工具",
-		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、下载 xcgui 和 xcgui-example 仓库的源码、下载 xcgui.dll 文件, 克隆 GitHub 仓库, 下载文件, 下载 go-xcgui-dev 技能。
+		Long: `xc 是一个 xcgui 助手类型的命令行工具, 功能包括给项目添加 xcgui、编译程序、给程序添加 Windows 资源 / 版本信息、下载 xcgui 和 xcgui-example 仓库的源码、下载 xcgui.dll 文件, 克隆任意 GitHub 仓库, 从链接下载文件, 下载 go-xcgui-dev 技能。
 
 使用方法:
   xc [command]
@@ -27,10 +28,11 @@ func main() {
   get           执行 go get -u github.com/twgh/xcgui
   build         执行 go build -ldflags="-s -w -H windowsgui" -trimpath
   zipdl         下载并解压 xcgui 和 xcgui-example 仓库的源码 ZIP，自动选择可用代理
-  clone         克隆 GitHub 仓库，自动选择可用代理
-  dl            下载文件，自动选择可用代理
+  clone         克隆任意 GitHub 仓库，自动选择可用代理
+  dl            从链接下载文件，如果是 GitHub 文件会自动选择可用代理
   dlldl         下载 xcgui.dll 文件
   getskill      下载 go-xcgui-dev 技能
+  res           转发 go-winres 命令（添加 Windows 资源 / 版本信息）
   version       显示版本信息
   help          显示命令帮助信息
 
@@ -42,7 +44,7 @@ func main() {
 		Use:   "version",
 		Short: "显示版本信息",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("xc version 0.0.6")
+			fmt.Println("xc version 0.0.7")
 		},
 	}
 
@@ -66,6 +68,9 @@ func main() {
 
 	// 添加 getskill 命令
 	rootCmd.AddCommand(getskill.NewCommand())
+
+	// 添加 res 命令（转发 go-winres）
+	rootCmd.AddCommand(res.NewCommand())
 
 	// 添加版本命令
 	rootCmd.AddCommand(versionCmd)

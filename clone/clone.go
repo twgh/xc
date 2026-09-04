@@ -21,8 +21,8 @@ func checkGitExists() bool {
 func NewCommand() *cobra.Command {
 	var cloneCmd = &cobra.Command{
 		Use:   "clone",
-		Short: "克隆 GitHub 仓库",
-		Long: `克隆 GitHub 仓库，自动使用代理加速下载，如果都无法访问则中止克隆。
+		Short: "克隆任意 GitHub 仓库",
+		Long: `克隆任意 GitHub 仓库，自动使用代理加速下载，如果都无法访问则中止克隆。
 
 示例:
   xc clone https://github.com/twgh/xcgui          # 克隆 xcgui 仓库

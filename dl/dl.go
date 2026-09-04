@@ -33,8 +33,8 @@ func NewCommand() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "dl",
-		Short: "下载文件",
-		Long: `下载文件，自动使用代理加速下载，如果都无法访问则中止下载。
+		Short: "从链接下载文件",
+		Long: `从链接下载文件，自动使用代理加速 GitHub 文件下载，如果都无法访问则中止下载。
 
 示例:
   xc dl https://github.com/twgh/xcgui/archive/main.zip               		# 下载分支源码

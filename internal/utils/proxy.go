@@ -18,7 +18,6 @@ type ProxyConfig struct {
 var Proxies = []ProxyConfig{
 	{"ghfast", "https://ghfast.top/"},
 	{"ghproxy", "https://gh-proxy.org/"},
-	{"llkk", "https://gh.llkk.cc/"},
 	{"direct", ""}, // 直接下载
 }
 

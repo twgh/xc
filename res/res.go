@@ -28,7 +28,6 @@ func ensureWinresExe() (string, error) {
 		return exePath, nil
 	}
 
-	fmt.Printf("正在释放 %s 到临时目录: %s\n", winresExeName, exePath)
 	if err := os.WriteFile(exePath, winresExe, 0o755); err != nil {
 		return "", fmt.Errorf("释放 %s 失败: %w", winresExeName, err)
 	}
@@ -39,9 +38,8 @@ func ensureWinresExe() (string, error) {
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "res",
-		Short: "转发 go-winres 命令（给程序添加 Windows 资源 / 版本信息）",
-		Long: `res 命令会先把内置的 go-winres.exe 释放到系统临时目录（若临时目录中不存在该文件才释放）,
-然后把后续参数原样转发给 go-winres 执行, 相当于在命令行中直接调用 go-winres。
+		Short: "执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息）",
+		Long: `执行 go-winres 命令（给程序添加 Windows 资源 / 版本信息）, 相当于在命令行中直接调用 go-winres。
 
 go-winres 常用子命令:
   init     在当前目录创建初始的 ./winres/winres.json

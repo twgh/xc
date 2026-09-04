@@ -32,7 +32,7 @@ func main() {
   dl            从链接下载文件，如果是 GitHub 文件会自动选择可用代理
   dlldl         下载 xcgui.dll 文件
   getskill      下载 go-xcgui-dev 技能
-  res           转发 go-winres 命令（添加 Windows 资源 / 版本信息）
+  res           执行 go-winres 命令（添加 Windows 资源 / 版本信息）
   version       显示版本信息
   help          显示命令帮助信息
 

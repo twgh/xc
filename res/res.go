@@ -11,8 +11,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed go-winres.exe
+//go:embed assets/go-winres.exe
 var winresExe []byte
+
+//go:embed assets/winres.json
+var winresJSON []byte
+
+//go:embed assets/icon.ico
+var iconIco []byte
 
 // winresExeName 释放到临时目录时的文件名
 const winresExeName = "go-winres.exe"
@@ -76,8 +82,54 @@ go-winres 常用子命令:
 				}
 				return err
 			}
+
+			// 若执行的是 init 子命令, 则覆盖 winres/winres.json 并删除图标文件
+			if len(args) > 0 && args[0] == "init" {
+				if err := applyInitOverlay(); err != nil {
+					return err
+				}
+			}
 			return nil
 		},
 	}
 	return cmd
+}
+
+// applyInitOverlay 在 go-winres init 之后执行:
+// 将内置的 winres.json 覆盖到 winres/ 目录, 并删除 go-winres 生成的 icon.png 和 icon16.png。
+func applyInitOverlay() error {
+	winresDir := "winres"
+
+	if _, err := os.Stat(winresDir); err != nil {
+		return fmt.Errorf("未找到 %s 目录, 可能 go-winres init 未能成功执行: %w", winresDir, err)
+	}
+
+	// 覆盖 winres/winres.json
+	targetJSON := filepath.Join(winresDir, "winres.json")
+	if err := os.WriteFile(targetJSON, winresJSON, 0o644); err != nil {
+		return fmt.Errorf("覆盖 %s 失败: %w", targetJSON, err)
+	}
+	// fmt.Printf("已覆盖 %s\n", targetJSON)
+
+	// 删除 go-winres init 生成的图标文件
+	for _, name := range []string{"icon.png", "icon16.png"} {
+		p := filepath.Join(winresDir, name)
+		if _, err := os.Stat(p); err == nil {
+			if err := os.Remove(p); err != nil {
+				return fmt.Errorf("删除 %s 失败: %w", p, err)
+			}
+			// fmt.Printf("已删除 %s\n", p)
+		} else {
+			fmt.Printf("未找到 %s, 跳过删除\n", p)
+		}
+	}
+
+	// 释放内置的 icon.ico（winres.json 中 RT_GROUP_ICON 引用了它）
+	targetIco := filepath.Join(winresDir, "icon.ico")
+	if err := os.WriteFile(targetIco, iconIco, 0o644); err != nil {
+		return fmt.Errorf("写入 %s 失败: %w", targetIco, err)
+	}
+	fmt.Println("提示: ico 中最好包含 16，24，32，48，64，256 尺寸的图片以达到最佳显示效果")
+	fmt.Println("提示: 继续执行 xc res make 可生成 .syso 文件")
+	return nil
 }

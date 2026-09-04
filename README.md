@@ -5,8 +5,6 @@
 	<a href="https://golang.org"> <img src="https://img.shields.io/badge/golang-≥1.18-blue" alt="golang"></a>
 	<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-brightgreen" alt="License"></a>
 </p>
-
-
 ## 介绍
 
 xc 是一个 xcgui 助手类型的命令行工具, 也包含一些其它的功能, 比如: 从 GitHub 仓库克隆代码、下载文件等(自动使用代理)。
@@ -24,7 +22,7 @@ xc 是一个 xcgui 助手类型的命令行工具, 也包含一些其它的功�
 ## 安装
 
 ```
-go install -ldflags="-s -w" -trimpath github.com/twgh/xc@latest
+go install github.com/twgh/xc@latest
 ```
 
 成功则 `%GOPATH%\bin` 目录中会出现一个 `xc.exe`

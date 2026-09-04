@@ -29,4 +29,4 @@ go.work.sum
 .env
 
 # Files
-!res/go-winres.exe
+!res/assets/go-winres.exe

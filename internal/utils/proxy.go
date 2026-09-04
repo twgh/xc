@@ -17,6 +17,7 @@ type ProxyConfig struct {
 // Proxies 代理列表（按优先级排序）
 var Proxies = []ProxyConfig{
 	{"ghfast", "https://ghfast.top/"},
+	{"ghproxy", "https://gh-proxy.org/"},
 	{"llkk", "https://gh.llkk.cc/"},
 	{"direct", ""}, // 直接下载
 }
